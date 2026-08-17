@@ -1,0 +1,45 @@
+
+{% extends "auctions/layout.html"%}
+{% block body %}
+<h3>My Watchlist</h3>
+{% if message %}
+{{ message }}
+{% endif %}
+{% if items %}
+    {% for item in items %}
+        <div class="listing"> 
+            <div class="item">
+                <a href="{% url 'listing' item.item.id %}"><p><span style="font-size: 12px; text-align: left;">{{ item.item.category }}</span> </p>
+                    <p><span style="font-size: 15px; color: #333333; font-weight: 200;">{{ item.item.name }}</span></p></div>
+                {% if item.item.image %}
+                    <img class="list_image" src="{{ item.item.image}}" alt="{{ item.item.name }}">
+                {% endif %}
+                </a>
+            <div style="font-size: small; font-style: italic;">{{ item.item.description}}</div>
+            <div style="font-size: small; color: rgb(167, 162, 162)">Starting price: ${{ item.item.starting_price}}</div>
+            <div style="font-size: small; color: rgb(167, 162, 162)">Current price: ${{ item.item.current_price}}</div>
+        {% if item.item.bidding %}
+            <p style="font-size: small;">Bidding: <span style="color: greenyellow;">Active </span></p>
+        {% if item.item.posted_by.id != user.id %}
+            <form action="{% url 'bid'%}" method="post">
+                {% csrf_token %}
+                <input type="hidden" name="item" value="{{ item.item.id }}">
+                <input type="hidden" name="bidder" value = "{{ user.id }}">
+                <label for="bid_amt" style="font-size: small;">Bid amount:</label>
+                <input type="number" name="bid_amt" style="width: 80px; border-radius: 5px; margin-bottom: 5px;">
+                <button type="submit" name="action" value="put">Bid</button>
+            </form>
+        {% endif %}
+        {% else %}
+            <p style="font-size: small; color: red;">Auctions for this item are closed. Final price: <span style="color:black">${{ item.item.current_price}}</span></p>
+        {% endif %}
+            <form action="{% url 'watchlist' %}" method="post">
+                {% csrf_token %}
+                <input type="hidden" value="{{ item.id }}" name="toRemove">
+                <button type="submit" name="action" value="delete">Remove</button>
+            </form>
+        </div>
+        <hr>
+    {% endfor %}
+{% endif %}
+{% endblock body%}

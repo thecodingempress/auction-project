@@ -1,0 +1,44 @@
+{% extends "auctions/layout.html" %}
+{% block body %}
+<h3>My Bids</h3>
+{% if user.is_authenticated %}
+{% if not bids %}
+<p> No bids yet!</p>
+{% endif %}
+
+{% for bid in bids %}
+<div class="bids-item">
+    <span style="font-size: small; color: grey;"><a href="{% url 'listing' bid.listing.id %}">{{ bid.id }}. {{ bid.listing.name}} | {{ bid.listing.category }}</a></span>
+    <p style="font-size: small">Starting price: {{bid.listing.starting_price}}</p>
+    <p style="font-size: small">Current price: {{ bid.listing.current_price}}</p>
+    <p style="font-size: small">Your bid: {{ bid.amount }}</p>
+    {% if not bid.listing.bidding and bid.amount == bid.listing.current_price %}
+    <p style="color: greenyellow; font-size: smaller;">Bid approved!</p>
+    {% endif %}
+    <div style="text-align: center; margin: 5px;">
+        <p style="font-size: small">Offers: </p>
+        {% for each in others %}
+        {% if each.listing.id == bid.listing.id %}
+        <ul style="list-style: none;">
+            <li style="font-size: smaller"><span style="color: rgb(167, 162, 162)">{{each.user.username}}</span> | {{ each.amount}}</li>
+        </ul>
+        {% endif %}
+        <hr>
+        {% endfor %}
+    </div>
+    {% if bid.listing.bidding%}
+    <span style="color:greenyellow">Active</span>
+    {% else %}
+    <p style="color: red; font-size: small;">Closed. Final price: <span style="color: black;">${{ bid.listing.current_price }}</span></p>
+    {% endif %}
+    <form action = "{% url 'bid' %}" method="post">
+        {% csrf_token %}
+        <input type="hidden" name="BidId" value="{{ bid.id }}">
+        <button type="submit" name="action" value="delete">Remove </button>
+    </form>
+</div>
+{% endfor%} 
+{% else %}
+<p style="font-size: small;">Please <a href="{% url 'login' %}">sign in </a>to see your bids!</p>
+{% endif %}
+{% endblock body%}

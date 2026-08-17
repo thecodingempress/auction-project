@@ -1,0 +1,91 @@
+{% extends "auctions/layout.html" %}
+{% block body %}
+<h3>Listing {{ item.id }}</h3>
+<hr>
+{% if not item.bidding  and winner == user.id %}
+<p style="font-size: medium; color: greenyellow;">Congratulations, your bid won!</p>
+{% endif %}
+
+<div class="one_listing">
+
+    <div class="right">
+        <h3 style="font-size: 20px; color: green">{{ item.name }}</h3>
+        <img src="{{item.image}}" alt="{{ item.name}}">
+
+        <span style="font-size: small; color: grey;">Starting Price: ${{ item.starting_price}} | Current Price: ${{ item.current_price}}</span>
+    </div>
+    <div class="middle">
+        <p style="font-size: small; color: rgb(167, 162, 162); font-style: italic;">Posted by: {{ item.posted_by.username}}</p>
+        <p style="font-size: 13px; padding: 5px; color: #333333 ">{{ item.description }}</p>
+        <div class="sub-middle">
+        {% if user.is_authenticated and item.bidding %}
+        <form action="{% url 'watchlist'%}" method="post">
+            {% csrf_token %}
+            <input type="hidden" name="toAdd" value="{{ item.id }}">
+            <input type="hidden" name="user" value="{{ user.id }}">
+            <button type="submit" name="action" value="add">Watchlist</button>
+            
+        </form>
+        {% endif %}
+
+    
+        {% if item.bidding and user.is_authenticated %}
+        {% if not user.id == item.posted_by.id %}
+        <form action="{% url 'bid'%}" method="post">
+            {% csrf_token %}
+            <input type="hidden" name="item" value="{{ item.id }}">
+            <input type="hidden" name="bidder" value = "{{ user.id }}">
+            <label for="bid_amt" style="font-size: small;">Bid amount:</label>
+            <input type="number" name="bid_amt" style="width: 60px; margin: 5px; border-radius: 5px;">
+            <button type="submit" name="action" value="put">Bid</button>
+        </form>
+        {% else %}
+        <form action = "{% url 'bid' %}" method="post">
+            {% csrf_token %}
+            <input type="hidden" name="theID" value="{{ item.id }}">
+            <button type="submit" name="action" value="close">Close Bids </button>
+        </form>
+        {% endif %}
+        {% elif not user.is_authenticated and item.bidding %}
+        <p style="font-size: small; color: red;">Please <a href="{% url 'login' %}">sign in</a> to bid</p>
+        {% endif %}
+
+        {% if not item.bidding %}
+            <p style="font-size: small; color: red;">Auctions for this item are closed. Final price: {{ item.current_price }}</p>
+        {% endif%}
+        </div>
+
+
+    </div>
+    <div class="left">
+        <h4 style="font-size: 22px;">Comments</h4>
+        {% for comment in comments %}
+            <div class="comment"><span style="font-size: small; color: rgb(167, 162, 162)">{{ comment.user.username}} </span>: <span style="font-size: small; font-style: italic;">{{ comment.remark}}</span>
+                <form action="{% url 'comment' %}" method = "post">
+                    {% csrf_token %}
+                    <input type="hidden" name="remark" value="{{ comment.id }}">
+                    <input type="hidden" name="listing" value="{{ item.id}}">
+                    {% if user.is_authenticated and user.id == comment.user.id %}
+                    <button type="submit" name="comment" value="delete">Delete </button>
+                    {% endif %}
+                </form>
+            </div>
+        {% endfor%}
+    
+    {% if user.is_authenticated %}
+        <form action = "{% url 'comment' %}" method="post">
+            {% csrf_token %}
+            <input type="text" placeholder="Comment here" name="remark" required>
+            <input type="hidden" name="poster" value="{{ user.id }}">
+            <input type="hidden" name="listing" value="{{ item.id}}">
+            <button type="submit" name="comment" value="add">Post </button>
+        </form>
+    {% else %}
+        <p>Please <a href="{% url 'login' %}"> sign in </a> to comment.</p>
+    {% endif %}
+    </div>
+</div>
+
+<hr>
+    <button><a href="{% url 'index' %}">Back Home</a></button>
+{% endblock body %}

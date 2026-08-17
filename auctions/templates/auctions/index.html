@@ -1,0 +1,37 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    <h2>Active Listings</h2>
+{% for listing in listings %}
+    <div class="listing">
+        <div class="listing-bar">
+            <div class="listing-image"><a href="{% url 'listing' listing.id %}">
+                <div style="font-size: small; color: rgb(167, 162, 162)">{{ listing.category }} | <span style="color: green;">{{ listing.name }}</span></div>
+                {% if listing.image %}
+                <img class="list_image" src="{{ listing.image}}" alt="{{ listing.name }}">
+                {% endif %} </a>
+            </div>
+            <div class="listing-detail">
+                {% if listing.posted_by.id == user.id %}
+                    <p style="font-size: smaller; color: #d698ce; font-style: italic;">You added this item</p>
+                {% endif %}
+                <div class="listing-description">{{ listing.description |truncatewords:10}}...</div>
+                <div class="listing-font">Starting price: ${{ listing.starting_price}}</div>
+                <div class="listing-font">Current price: ${{ listing.current_price}}</div>
+                <div class="listing-font">Auction: 
+                    {% if listing.bidding %}
+                        <span style="color:greenyellow">Active</span>
+                    {% else %}
+                        <p style="color: red">Closed. Final price: <span style="color: black;">${{ listing.current_price }}</span></p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endfor%}
+
+{% if user.is_authenticated %}
+<button><a href="{% url 'new_listing' %}">Add New</a></button>
+{% endif %}
+{% endblock %}

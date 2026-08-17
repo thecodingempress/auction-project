@@ -1,0 +1,16 @@
+{% extends "auctions/layout.html" %}
+{% block body %}
+<h3>{{ category }}</h3>
+{% if not items %}
+<p>No items listed in this category yet</p>
+{% else %}
+<p>Items in this category: </p>
+{% for item in items %}
+<div><a href = "{% url 'listing'  item.id %}"> <span style="font-size: medium; color: rgb(167, 162, 162)">{{ item.name }}</span>
+    <img src="{{ item.image }}" alt="{{item.name }}" style="width: 40%;"></a> 
+</div>
+<hr>
+{% endfor %}
+{% endif %}
+<button><a href="{% url 'category' %}">Back</a></button>
+{% endblock body %}

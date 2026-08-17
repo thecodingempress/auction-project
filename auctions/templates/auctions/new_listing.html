@@ -1,0 +1,19 @@
+{% extends "auctions/layout.html"%}
+{% block body%}
+<h3>Add A New Listing</h3>
+<form action="{% url 'new_listing'%}" method="post">
+    {% csrf_token %}
+    <input type="text" name="title" placeholder="Title" required>
+    <label for="description">Description</label>
+    <textarea name="description" required></textarea>
+    <select name = "category">
+        {% for category in categories%}
+        <option>{{ category }}</option>
+        {% endfor%}
+    </select>
+    <input type="text" name="image" placeholder="Link to Image (optional)">
+    <input type="number" placeholder="Starting Price (USD)" min="10" name="starting" required>
+    <input type="hidden" name="posted_by" value="{{ user.id }}">
+    <button type="submit" name="action" value="add">Add Listing</button>
+</form>
+{% endblock body%}
